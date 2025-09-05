@@ -14,7 +14,10 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Archive Redirect"
+    "default_title": "Archive Redirect",
+    "default_icon": {
+      "16": "icon16.png"
+    }
   },
   "content_scripts": [
     {
@@ -22,5 +25,8 @@
       "js": ["content.js"],
       "run_at": "document_start"
     }
-  ]
+  ],
+  "icons": {
+    "16": "icon16.png"
+  }
 }
