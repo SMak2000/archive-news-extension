@@ -34,34 +34,53 @@ addCurrentSiteBtn.addEventListener("click", () => {
   });
 });
 
-// Reusable function to add a site to storage and UI
+// Add a site to storage and UI
 function addSite(site) {
   if (!site) return;
 
   chrome.storage.sync.get({ sites: [] }, (data) => {
     const sites = data.sites;
-    if (!sites.includes(site)) {
-      sites.push(site);
+    if (!sites.some(s => s.site === site)) {
+      sites.push({ site, enabled: true });
       chrome.storage.sync.set({ sites });
-      addSiteToUI(site);
+      addSiteToUI({ site, enabled: true });
     }
   });
 }
 
-function addSiteToUI(site) {
+// Add a site to the UI
+function addSiteToUI({ site, enabled }) {
   const li = document.createElement("li");
   li.textContent = site;
 
+  const slider = document.createElement("input");
+  slider.type = "checkbox";
+  slider.checked = enabled;
+  slider.style.marginLeft = "10px";
+  slider.addEventListener("change", () => {
+    toggleSite(site, slider.checked);
+  });
+
   const removeBtn = document.createElement("button");
   removeBtn.textContent = "Remove";
+  removeBtn.style.marginLeft = "10px";
   removeBtn.addEventListener("click", () => {
     chrome.storage.sync.get({ sites: [] }, (data) => {
-      const sites = data.sites.filter(s => s !== site);
+      const sites = data.sites.filter(s => s.site !== site);
       chrome.storage.sync.set({ sites });
       li.remove();
     });
   });
 
+  li.appendChild(slider);
   li.appendChild(removeBtn);
   siteList.appendChild(li);
+}
+
+// Toggle the enabled state of a site
+function toggleSite(site, enabled) {
+  chrome.storage.sync.get({ sites: [] }, (data) => {
+    const sites = data.sites.map(s => s.site === site ? { ...s, enabled } : s);
+    chrome.storage.sync.set({ sites });
+  });
 }
